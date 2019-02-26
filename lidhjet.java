@@ -5,57 +5,41 @@ public class lidhjet {
     private String emri_lidhje;
     private ArrayList<String> fundet;
     private ArrayList<String> gjendjet_re;
+    private boolean eplison;
 
     public lidhjet(String emri) {
         this.emri_lidhje = emri;
         fundet = new ArrayList<>();
         gjendjet_re = new ArrayList<>();
+        eplison = false;
     }
     public void shtoFunde(int nrGjendesh) {
         Scanner reader = new Scanner(System.in);
         System.out.println("Lidhja me emer " + emri_lidhje);
+        String fundi;
         for (int i = 0; i < nrGjendesh; i++) {
-            System.out.println("Shto fund te lidhjes ");
-            System.out.println("-1 nëse nuk doni te shtoni funde");
-            String fundi = reader.next();
-            if (fundet.size() >= 1) {
-                for (int j = 0; j < fundet.size(); j++) {
-                    if (fundi.contains("-1") || fundi.contains(fundet.get(j))){
-                        break;
-                    } else  {
-                        fundet.add(fundi);
-                        break;
-                    }
-                }
-
-            } else {
-                if (fundi.equals("-1")){
-                    continue;
-                } else  {
-                    fundet.add(fundi);
-                }
+            System.out.println("Shto fundin per lidhje");
+            System.out.println("-1 nese nuk doni te shtoni elemnt");
+            fundi = reader.next();
+            if (fundi.contains("-1")) {
+                continue;
+            } else if (!fundet.contains(fundi)) {
+                fundet.add(fundi);
             }
-
         }
     }
-    public void shtoFundePerseritje(ArrayList<String> element) {
-        for (int i = 0; i < element.size(); i++) {
-                if (!fundet.contains(element.get(i)) ){
-                    fundet.add(element.get(i));
-                }
+    public void shtoFundePerseritje(String element) {
+        if (fundet.size() == 0) {
+            fundet.add(element);
         }
-        for (int i = 0 ; i < fundet.size(); i++) {
-            for (int j = 0; j < fundet.size(); j++){
-
-                if (fundet.size() == 1) {
-                break;
-            }
-                if (fundet.get(j).contains(fundet.get(i))) {
-                    fundet.remove(i);
-                }
-            }
-        }
-
+      else if (fundet.size() > 1) {
+         fundet.clear();
+          fundet.add(element);
+      }
+    }
+    public void shtoFundePerseritjeVazhdim(String element) {
+            fundet.clear();
+            fundet.add(element);
     }
 
     public void printo(){
@@ -87,21 +71,10 @@ public class lidhjet {
 
     public String merr_gjendje_re(){
         String gjendje_re = "";
-        String controll = "";
-        ArrayList<String> gjendja_re = new ArrayList<>();
-
-            for (int i = 0 ;i < fundet.size(); i++) {
-              gjendja_re.add(fundet.get(i));
-              controll += gjendja_re.get(i);
-            }
-           for (int i = 0; i < gjendja_re.size(); i++) {
-               gjendje_re += gjendja_re.get(i);
+           for (int i = 0; i < fundet.size(); i++) {
+               gjendje_re += fundet.get(i);
            }
         return gjendje_re;
-    }
-
-    public int gjatesia() {
-        return fundet.size();
     }
 
 }
