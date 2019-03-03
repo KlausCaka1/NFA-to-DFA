@@ -56,9 +56,11 @@ public class Main {
                     System.out.println("Doni te shtoni elementin eplsilon ne lidhje");
                     System.out.println("Shto nese doni te shtoni epsilon");
                     String epsilon = reader.next();
-                    if (epsilon.contains("shto") || epsilon.contains("1")){
+                    if (epsilon.contains("shto") || epsilon.equals("1")){
                         kaEpsilon = true;
                         ((gjendjet)automat.get(i)).shtoLidhje("E", kaEpsilon);
+                    } else if (epsilon.contains("-1")) {
+
                     }
                 }else {
                     System.out.println("Vendos lidhje per gjendjen " + ((gjendjet) automat.get(i)).emri());
@@ -104,23 +106,27 @@ public class Main {
             index_gabimi++;
 
         }
+
         System.out.println("Perfundoi printimi");
         controll_gjendjesh = index_gabimi;
-        if (kaEpsilon && !determinist) {
 
+        if (kaEpsilon && !determinist) {
+            gjithe_gjendjet.clear();
+            index_gabimi = 0;
+            ArrayList<String> afjd = new ArrayList<>();
             for (int i = 0; i < automat.size(); i++) {
                 gjendjeRe = "";
                 gjendjeRe += ((gjendjet)automat.get(i)).emri();
-                for (int j = i; j < automat.size(); j++) {
-                    if (((gjendjet)automat.get(j)).kaEpsilon()) {
-                        gjendjeRe +=  ((gjendjet)automat.get(j)).funderEpsilon();
-                    } else {
-                        break;
-                    }
+                for (int j = i; j < automat.size(); j++){
+                        if (((gjendjet)automat.get(j)).kaEpsilon() &&
+                                !gjendjeRe.contains(((gjendjet)automat.get(j)).funderEpsilon())) {
+                            gjendjeRe +=  ((gjendjet)automat.get(j)).funderEpsilon();
+                        }
                 }
                 System.out.println(gjendjeRe);
                 gjendjet gjendja_re = new gjendjet(gjendjeRe);
                 automati_determinist.add(gjendja_re);
+                break;
             }
 
             kaEpsilon = false;
@@ -132,6 +138,59 @@ public class Main {
             }
 
             shtoFunde(nrElementeve,0,fund_ri);
+
+            for (int i = 0; i < automati_determinist.size(); i++) {
+                gjithe_gjendjet.add(((gjendjet)automati_determinist.get(i)).emri());
+            }
+
+            while (vazhdo) {
+                if (automati_determinist.size() >= automat.size()){
+                    vazhdo = false;
+                }
+                shkiopergjendjeRe(gjendje_re,index_gabimi,controll_gjendjesh,nrElementeve,afjd,heraPare);
+
+                heraPare = false;
+                System.out.println(afjd);
+                int index_gjendje_pershtim = 0;
+                int index_shtimi = 0;
+                System.out.println("gjendjet e reja "+afjd);
+                for (int i = 0; i < gjithe_gjendjet.size(); i++) {
+                    for (int j = 0; j < afjd.size(); j++) {
+                        if (!gjithe_gjendjet.contains(afjd.get(j)) ) {
+                            gjithe_gjendjet.add(afjd.get(j));
+                            shto = true;
+                            index_shtimi++;
+                            index_gjendje_pershtim = j;
+                            vazhdo = true;
+                            break;
+                        }
+                    }
+                }
+                if (shto){
+                    shto = false;
+                    index_gabimi++;
+                    if (index_shtimi == 1) {
+                        gjendjet gjendjet_re = new gjendjet(afjd.get(index_gjendje_pershtim));
+                        automati_determinist.add(gjendjet_re);
+                    } else {
+                        for (int i = gjithe_gjendjet.size() - index_shtimi; i < gjithe_gjendjet.size(); i++) {
+                            gjendjet gjendjet_re = new gjendjet(gjithe_gjendjet.get(i));
+                            automati_determinist.add(gjendjet_re);
+                        }
+                    }
+
+                    System.out.println(automati_determinist.size());
+
+                    for (int i = index_gabimi; i < automati_determinist.size(); i++) {
+                        for (int j = 0; j < nrElementeve; j++){
+                            ((gjendjet)automati_determinist.get(i)).shtoLidhje(elementet[j],kaEpsilon);
+                        }
+                    }
+
+                    shtoFunde(nrElementeve,index_gabimi,fund_ri);
+                }
+            }
+
             printoAutomatin(fundore);
 
         } else if (!determinist && !kaEpsilon) {
@@ -180,7 +239,7 @@ public class Main {
                                 gjendjet gjendjet_re = new gjendjet(gjithesej.get(index_gjendje_pershtim));
                                 automati_determinist.add(gjendjet_re);
                             } else {
-                                for (int i = 0; i < index_shtimi; i++) {
+                                for (int i = gjithe_gjendjet.size() - index_shtimi; i < gjithe_gjendjet.size(); i++) {
                                     gjendjet gjendjet_re = new gjendjet(gjithesej.get(i));
                                     automati_determinist.add(gjendjet_re);
                                 }
@@ -211,6 +270,7 @@ public class Main {
             for (int j = 0; j < nrElementeve; j++){
                 fund_ri = "";
                 for (int i = index_gabimi; i < automati_determinist.size(); i++) {
+                    fund_ri = "";
                     for (int c = 0; c < automat.size(); c++) {
                         if (((gjendjet)automati_determinist.get(i)).emri()
                                 .contains(((gjendjet) automat.get(c)).emri())) {
@@ -256,27 +316,33 @@ public class Main {
                                              boolean herapare) {
             gjendje_re = "";
             if (herapare && index_gabimi == 0) {
-                    gjendje_re += ((gjendjet)automat.get(index_gabimi)).gjendjetona();
+                for (int i = 0 ;i < nrElementeve; i++) {
+                    gjendje_re =  "";
+                    gjendje_re += ((gjendjet)automati_determinist.get(index_gabimi)).gjendje_re(i);
                     if (!gjithesej.contains(gjendje_re)){
                         gjithesej.add(gjendje_re);
                     }
+                }
+
             } else if (index_gabimi >= 1) {
                 for (int j = 0; j < nrElementeve; j++) {
                     gjendje_re = "";
-                    for (int i = 0; i < automat.size(); i++) {
-                        if ( ((gjendjet)automati_determinist.get(automati_determinist.size() - 1)).emri()
-                                .contains(((gjendjet) automat.get(i)).emri()) &&
-                                !gjendje_re.contains(((gjendjet)automat.get(i)).gjendje_re(j)) ) {
-                            gjendje_re += ((gjendjet)automat.get(i)).gjendje_re(j);
-                            if (!gjithesej.contains(gjendje_re)) {
-                                gjithesej.add(gjendje_re);
+                    for (int c = 0; c < automati_determinist.size(); c++) {
+                        gjendje_re = "";
+                        for (int i = 0; i < automat.size(); i++) {
+                            if ( ((gjendjet)automati_determinist.get(c)).emri()
+                                    .contains(((gjendjet) automat.get(i)).emri()) &&
+                                    !gjendje_re.contains(((gjendjet)automat.get(i)).gjendje_re(j)) ) {
+                                gjendje_re += ((gjendjet)automat.get(i)).gjendje_re(j);
+                                if (!gjithesej.contains(gjendje_re)) {
+                                    gjithesej.add(gjendje_re);
+                                }
                             }
                         }
                     }
+
                 }
             }
-
-
         }
     }
 
